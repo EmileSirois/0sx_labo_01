@@ -1,5 +1,9 @@
 const int ledPin = 13;
 const int loopStart = 0;
+const int shortShortDelay = 8;
+const int shortDelay = 250;
+const int longDelay = 2000;
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -8,23 +12,23 @@ void setup() {
 }
 
 
-int stateON() {
+int stateON(bool ledState) {
   Serial.println("Allume - 6229147");
 
-  digitalWrite(ledPin, HIGH);
+  digitalWrite(ledPin, ledState);
   // la del reste alluméependant 2 secondes
-  delay(2000);
+  delay(longDelay);
 }
 
-int stateBlink(int blinkAmount) {
+int stateBlink(int blinkAmount, bool ledState) {
   Serial.println("Clignotement - 6229147");
   // la lumière clignote 3 fois pendant 500ms
   for (int i = loopStart; i < blinkAmount; i++) {
-    digitalWrite(ledPin, HIGH);
+    digitalWrite(ledPin, ledState);
     //250 ms pour chaque demi blink (eteint allume)
-    delay(250);
-    digitalWrite(ledPin, LOW);
-    delay(250);
+    delay(shortDelay);
+    digitalWrite(ledPin, !ledState);
+    delay(shortDelay);
   }
 }
 
@@ -38,29 +42,30 @@ int stateFade() {
     analogWrite(ledPin, intensite);
     intensite--;
     //8 ms de délai car on fait 256 décrémentation d'intensité (8 *256 = 2048)
-    delay(8);
+    delay(shortShortDelay);
   }
 }
 
-int stateEteint() {
+int stateEteint(bool ledState) {
   Serial.println("Eteint - 6229147");
 
   // on éteint la del pendant 2s
-  digitalWrite(ledPin, LOW);
-  delay(2000);
+  digitalWrite(ledPin, !ledState);
+  delay(longDelay);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
   int message = 0;
   int blinkAmount = (4 / 2) + 1;
+  bool ledState = 1;
 
   // state 01 : Lumière allumée
-  stateON();
+  stateON(ledState);
   // State 02 : Lumière clignotante
-  stateBlink(blinkAmount);
+  stateBlink(blinkAmount, ledState);
   // State 03 : Variation d'intensité
   stateFade();
   // State 04 : Lumière Éteinte
-  stateEteint();
+  stateEteint(ledState);
 }
